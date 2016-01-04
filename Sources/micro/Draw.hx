@@ -17,7 +17,7 @@ class Draw
 	public static var g2:kha.graphics2.Graphics;
 	
 	/** Color used in all drawing (if not specified in the drawing functions) */
-	public static var color:Color = Color.White;	
+	public static var color:Color = Color.White;
 	
 	static var the:Draw;
 	

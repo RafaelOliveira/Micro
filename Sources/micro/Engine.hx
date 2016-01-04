@@ -18,11 +18,7 @@ class Engine
 	public function new(gameInit:Void->Void, gameUpdate:Void->Void, gameRender:Void->Void, width:Int = 128, height:Int = 128, fps:Int = 60) 
 	{		
 		Assets.loadEverything(function()
-		{		
-			Micro.int = Std.int;
-			Micro.min = Math.min;
-			Micro.max = Math.max;
-				
+		{	
 			var loader = new Loader();
 			var input = new Input();
 			var draw = new Draw(width, height);

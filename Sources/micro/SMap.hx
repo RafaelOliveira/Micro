@@ -50,12 +50,34 @@ class SMap
 			for (i in cx...(cx + cw))
 			{
 				if (layers[layer][j][i] > -1)
-					tileset.drawOne(layers[layer][j][i], x + (tx * tileset.tileSize), y + (ty * tileset.tileSize));
+					tileset.drawOne(layers[layer][j][i], x + (tx * tileset.tileWidth), y + (ty * tileset.tileHeight));
 				tx++;
 			}
 			
 			tx = 0;
-			ty++;			
+			ty++;
+		}
+	}
+	
+	/**
+	 * Draws a portion of the map with just one tile	 
+	 */
+	public function drawWithTile(x:Float, y:Float, cx:Int, cy:Int, cw:Int, ch:Int, layer:Int, tile:Int)
+	{
+		var tx = 0;
+		var ty = 0;
+		
+		for (j in cy...(cy + ch))
+		{
+			for (i in cx...(cx + cw))
+			{
+				if (layers[layer][j][i] > -1)
+					tileset.drawOne(tile, x + (tx * tileset.tileWidth), y + (ty * tileset.tileHeight));
+				tx++;
+			}
+			
+			tx = 0;
+			ty++;
 		}
 	}
 }

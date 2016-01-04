@@ -27,6 +27,6 @@ class Region
 		else
 			Draw.g2.color = Draw.color;
 			
-		Draw.g2.drawScaledSubImage(image, sx, sy, width, height, x, x, width, height);
+		Draw.g2.drawScaledSubImage(image, sx, sy, width, height, x, y, width, height);
 	}
 }

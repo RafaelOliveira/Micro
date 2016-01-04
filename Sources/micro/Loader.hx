@@ -51,7 +51,7 @@ class Loader
 		return reg;
 	}
 	
-	public static function getTileset(name:String, tileSize:Int):Tileset
+	public static function getTileset(name:String, tileWidth:Int, ?tileHeight:Int):Tileset
 	{
 		var tileset = the.tilesets.get(name);
 		
@@ -60,11 +60,11 @@ class Loader
 			var reg = getReg(name);
 			
 			if (reg != null)
-				tileset = new Tileset(reg.image, reg.sx, reg.sy, reg.width, reg.height, tileSize);
+				tileset = new Tileset(reg.image, reg.sx, reg.sy, reg.width, reg.height, tileWidth, tileHeight);
 			else
 			{
 				var image:Image = Reflect.field(Assets.images, name);
-				tileset = new Tileset(image, 0, 0, image.width, image.height, tileSize);
+				tileset = new Tileset(image, 0, 0, image.width, image.height, tileWidth, tileHeight);
 			}
 			
 			the.tilesets.set(name, tileset);

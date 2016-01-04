@@ -12,9 +12,10 @@ class Tileset
 	public var height:Int;
 	
 	var totalSprCol:Int;
-	public var tileSize:Int;
+	public var tileWidth:Int;
+	public var tileHeight:Int;
 	
-	public function new(image:Image, sx:Int, sy:Int, width:Int, height:Int, tileSize:Int) 
+	public function new(image:Image, sx:Int, sy:Int, width:Int, height:Int, tileWidth:Int, ?tileHeight:Int) 
 	{
 		this.image = image;
 		this.sx = sx;
@@ -22,15 +23,22 @@ class Tileset
 		this.width = width;
 		this.height = height;
 		
-		this.tileSize = tileSize;
-		totalSprCol = Std.int(width / tileSize);
+		this.tileWidth = tileWidth;
+		
+		if (tileHeight != null)
+			this.tileHeight = tileHeight;
+		else
+			this.tileHeight = tileWidth;
+				
+		totalSprCol = Std.int(width / tileWidth);
 	}	
 	
 	/** Draw a tile in only one position. Used mostly for maps. */
 	inline public function drawOne(id:Int, x:Float, y:Float):Void
 	{
-		Draw.g2.drawScaledSubImage(image, sx + ((id % totalSprCol) * tileSize), sy + (Std.int(id / totalSprCol) * tileSize), tileSize, tileSize, 
-								  x - Micro.camera.x, y - Micro.camera.y, tileSize, tileSize);
+		Draw.g2.color = Draw.color;
+		Draw.g2.drawScaledSubImage(image, sx + ((id % totalSprCol) * tileWidth), sy + (Std.int(id / totalSprCol) * tileHeight), tileWidth, tileHeight, 
+								  x - Micro.camera.x, y - Micro.camera.y, tileWidth, tileHeight);
 	}
 	
 	/** Draw a tile */
@@ -42,16 +50,16 @@ class Tileset
 			Draw.g2.color = Draw.color;
 		
 		if (w == 1 && h == 1)
-			Draw.g2.drawScaledSubImage(image, sx + ((id % totalSprCol) * tileSize), sy + (Std.int(id / totalSprCol) * tileSize), tileSize, tileSize, 
-								  x - Micro.camera.x, y - Micro.camera.y, flip_x ? -tileSize : tileSize, flip_y ? -tileSize : tileSize);
+			Draw.g2.drawScaledSubImage(image, sx + ((id % totalSprCol) * tileWidth), sy + (Std.int(id / totalSprCol) * tileHeight), tileWidth, tileHeight, 
+								  x - Micro.camera.x, y - Micro.camera.y, flip_x ? -tileWidth : tileWidth, flip_y ? -tileHeight : tileHeight);
 		else
 		{
 			for (i in 0...w)
 			{
 				for (j in 0...h)
-					Draw.g2.drawScaledSubImage(image, sx + ((id % totalSprCol) * tileSize), sy + (Std.int(id / totalSprCol) * tileSize), tileSize, tileSize, 
-										  x + (i * tileSize) - Micro.camera.x, y + (j * tileSize) - Micro.camera.y, flip_x ? -tileSize : tileSize,
-										  flip_y ? -tileSize : tileSize);
+					Draw.g2.drawScaledSubImage(image, sx + ((id % totalSprCol) * tileWidth), sy + (Std.int(id / totalSprCol) * tileHeight), tileWidth, tileHeight, 
+										  x + (i * tileWidth) - Micro.camera.x, y + (j * tileHeight) - Micro.camera.y, flip_x ? -tileWidth : tileWidth,
+										  flip_y ? -tileHeight : tileHeight);
 			}
 		}
 	}
@@ -64,15 +72,15 @@ class Tileset
 			Draw.g2.color = Draw.color;
 			
 		if (w == null)
-			w = sw * tileSize;
+			w = sw * tileWidth;
 			
 		if (h == null)
-			h = sh * tileSize;
+			h = sh * tileHeight;
 			
 		for (i in sx...(sx + sw))
 		{
 			for (j in sy...(sy + sh))
-				Draw.g2.drawScaledSubImage(image, this.sx + (sx * tileSize), this.sy + (sy * tileSize), sw * tileSize, sh * tileSize, x, y,
+				Draw.g2.drawScaledSubImage(image, this.sx + (sx * tileWidth), this.sy + (sy * tileHeight), sw * tileWidth, sh * tileHeight, x, y,
 										   flip_x ? -w : w, flip_y ? -h : h);
 		}
 	}
