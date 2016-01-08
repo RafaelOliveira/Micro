@@ -1,12 +1,30 @@
 package micro;
 
 import kha.input.Keyboard;
+import kha.input.Surface;
 import kha.Key;
+
+class Touch 
+{
+	public var x:Float;
+	public var y:Float;
+	public var on:Bool;
+	
+	public function new(x:Float, y:Float, on:Bool)
+	{
+		this.x = x;
+		this.y = y;
+		this.on = on;
+	}
+}
 
 class Input
 {
 	var keysHeld:Map<Int, Bool>;
 	var keysPressed:Map<Int, Bool>;
+	
+	var touchsHeld:Map<Int, Touch>;
+	var touchsPressed:Map<Int, Touch>;
 	
 	static var the:Input;
 	
@@ -15,11 +33,17 @@ class Input
 		keysHeld = new Map<Int, Bool>();
 		keysPressed = new Map<Int, Bool>();
 		
+		touchsHeld = new Map<Int, Touch>();
+		touchsPressed = new Map<Int, Touch>();
+		
 		for (i in 0...6)
 			keysHeld.set(i, false);
 			
-		var keyboard = Keyboard.get();
-		keyboard.notify(keyDown, keyUp);
+		var k = Keyboard.get();
+		k.notify(keyDown, keyUp);
+		
+		var t = Surface.get();
+		t.notify(touchStart, touchEnd, touchMove);
 		
 		the = this;
 	}
@@ -82,10 +106,62 @@ class Input
 		}
 	}
 	
+	function touchStart(index:Int, x:Int, y:Int):Void
+	{
+		var th = touchsHeld.get(index);
+		var tp = touchsPressed.get(index);
+		
+		if (th == null)
+			th = new Touch(x, y, true);
+		else
+		{
+			th.x = x;
+			th.y = y;
+			th.on = true;
+		}
+		
+		if (tp == null)
+			tp = new Touch(x, y, true);
+		else
+		{
+			tp.x = x;
+			tp.y = y;
+			tp.on = true;
+		}
+		
+		touchsHeld.set(index, th);
+		touchsPressed.set(index, tp);
+	}
+	
+	function touchEnd(index:Int, x:Int, y:Int):Void
+	{
+		var th = touchsHeld.get(index);
+		
+		th.x = x;
+		th.y = y;
+		th.on = false;
+		
+		touchsHeld.set(index, th);
+	}
+	
+	function touchMove(index:Int, x:Int, y:Int):Void
+	{
+		var th = touchsHeld.get(index);
+		
+		th.x = x;
+		th.y = y;
+		th.on = false;
+		
+		touchsHeld.set(index, th);
+	}
+	
 	public function update()
 	{
 		for (key in keysPressed.keys())
 			keysPressed.remove(key);
+			
+		for (key in touchsPressed.keys())
+			touchsPressed.remove(key);
 	}
 	
 	/** 
@@ -103,4 +179,41 @@ class Input
 	{		
 		return the.keysPressed.exists(id);		
 	}
+	
+	/** 
+	 * Check if a touch is being held 
+	 */
+	public static function touch(id:Int):Touch
+	{		
+		var th = the.touchsHeld.get(id);
+		
+		if (th == null)
+		{
+			th = new Touch(0, 0, false);
+			the.touchsHeld.set(id, th);
+		}
+		
+		return th;
+	}
+	
+	/**
+	 * Check if a touch was pressed 
+	 */
+	public static function touchp(id:Int):Touch
+	{		
+		var tp = the.touchsPressed.get(id);
+		
+		if (tp == null)
+			tp = new Touch(0, 0, false);
+		
+		return tp;
+	}
+	
+	/**
+	 * Check if a touch of any id was pressed 
+	 */
+	/*public static function touchpAny():Bool
+	{		
+		return the.touchsPressed.keys().hasNext();
+	}*/
 }

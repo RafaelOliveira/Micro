@@ -24,10 +24,10 @@ class SColor
 	{
 		switch(id)
 		{
-			default: palette = [Color.Black, Color.fromValue(0xff161e42), Color.fromValue(0xff6b1442), Color.fromValue(0xff03783e), 
-				  Color.fromValue(0xff9b3e26), Color.fromValue(0xff4d453e), Color.fromValue(0xffb5b6bb), Color.fromValue(0xffffeee2),
-				  Color.fromValue(0xffff0039), Color.fromValue(0xffff9300), Color.fromValue(0xffffff00), Color.fromValue(0xff0bea3c),
-				  Color.fromValue(0xff1c98ff), Color.fromValue(0xff70608b), Color.fromValue(0xffff5a97), Color.fromValue(0xffffc197)];
+			default: palette = [Color.Black, Color.fromValue(0xff1d2b53), Color.fromValue(0xff7e2553), Color.fromValue(0xff008751), 
+								Color.fromValue(0xffab5236), Color.fromValue(0xff5f574f), Color.fromValue(0xffc2c3c7), Color.fromValue(0xfffff1e8),
+								Color.fromValue(0xffff004d), Color.fromValue(0xffffa300), Color.fromValue(0xfffff024), Color.fromValue(0xff00e756),
+								Color.fromValue(0xff29adff), Color.fromValue(0xff83769c), Color.fromValue(0xffff77a8), Color.fromValue(0xffffccaa)];
 		}
 	}
 }

@@ -17,9 +17,14 @@ class Micro
 		return Math.min(a, b);
 	}
 	
-	public static function max(a:Float, b:Float):Float
+	inline public static function max(a:Float, b:Float):Float
 	{
 		return Math.max(a, b);
+	}
+	
+	inline public static function rnd(x:Float):Float
+	{
+		return Math.random() * x;
 	}
 	
 	public static function rectCollision(x0:Float, y0:Float, w0:Int, h0:Int, x1:Float, y1:Float, w1:Int, h1:Int):Bool
