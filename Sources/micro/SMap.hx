@@ -1,4 +1,5 @@
 package micro;
+import kha.Color;
 
 class SMap
 {
@@ -6,7 +7,7 @@ class SMap
 	public var tileset:Tileset;
 	
 	public var width:Int;
-	public var height:Int;
+	public var height:Int;	
 		
 	public function new(layers:Array<Array<Array<Int>>>) 
 	{
@@ -17,8 +18,8 @@ class SMap
 	}
 	
 	/** 
-	 * Get a tile id 
-	*/
+	 * Get a tile id
+	 */
 	inline public function get(x:Int, y:Int, layer:Int):Int
 	{
 		return layers[layer][y][x];
@@ -26,24 +27,29 @@ class SMap
 	
 	/**
 	 * Set a tile id
-	*/
+	 */
 	inline public function set(x:Int, y:Int, layer:Int, value:Int):Void
 	{
 		layers[layer][y][x] = value;
 	}
 	
+	/**
+	 * Get a layer
+	 */
 	inline public function getLayer(id:Int):Array<Array<Int>>
 	{
 		return layers[id];
 	}
 	
 	/**
-	 * Draws a portion of the map	 
+	 * Draws a portion of the map
 	 */
-	public function draw(x:Float, y:Float, cx:Int, cy:Int, cw:Int, ch:Int, layer:Int)
+	public function draw(x:Float, y:Float, cx:Int, cy:Int, cw:Int, ch:Int, layer:Int, ?color:Color = -1)
 	{
 		var tx = 0;
 		var ty = 0;
+		
+		Draw.g2.color = color;
 		
 		for (j in cy...(cy + ch))
 		{
@@ -62,10 +68,12 @@ class SMap
 	/**
 	 * Draws a portion of the map with just one tile	 
 	 */
-	public function drawWithTile(x:Float, y:Float, cx:Int, cy:Int, cw:Int, ch:Int, layer:Int, tile:Int)
+	public function drawWithTile(x:Float, y:Float, cx:Int, cy:Int, cw:Int, ch:Int, layer:Int, tile:Int, ?color:Color = -1)
 	{
 		var tx = 0;
 		var ty = 0;
+		
+		Draw.g2.color = color;
 		
 		for (j in cy...(cy + ch))
 		{

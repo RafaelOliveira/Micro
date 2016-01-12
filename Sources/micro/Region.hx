@@ -20,13 +20,9 @@ class Region
 		this.height = height;		
 	}	
 	
-	inline public function draw(x:Float, y:Float, ?color:Color):Void
+	inline public function draw(x:Float, y:Float, ?color:Color = -1):Void
 	{
-		if (color != null)
-			Draw.g2.color = color;
-		else
-			Draw.g2.color = Draw.color;
-			
+		Draw.g2.color = color;		
 		Draw.g2.drawScaledSubImage(image, sx, sy, width, height, x, y, width, height);
 	}
 }

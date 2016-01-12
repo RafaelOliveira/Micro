@@ -16,12 +16,6 @@ class Draw
 	/** Kha's 2d context */
 	public static var g2:kha.graphics2.Graphics;
 	
-	/** Color used in all drawing (if not specified in the drawing functions) */
-	public static var color:Color = Color.White;
-	
-	/** Default tileset for short command */
-	public static var tileset:Tileset;
-	
 	var font:Image;
 	
 	static var the:Draw;
@@ -34,14 +28,6 @@ class Draw
 		g2 = backbuffer.g2;		
 		
 		the = this;
-	}
-	
-	function setColor(?color:Color)
-	{
-		if (color != null)
-			g2.color = color;
-		else
-			g2.color = Draw.color;
 	}
 	
 	inline public static function loadBmFont(name:String):Void
@@ -58,17 +44,12 @@ class Draw
 			g2.clear(Color.Black);
 	}
 	
-	inline public static function tdraw(id:Int, x:Float, y:Float, w:Int = 1, h:Int = 1, flip_x:Bool = false, flip_y:Bool = false, ?color:Color)
-	{
-		tileset.draw(id, x, y, w, h, flip_x, flip_y, color);
-	}
-	
-	public static function bmString(str:String, x:Float, y:Float, ?color:Color):Void
+	public static function bmString(str:String, x:Float, y:Float, ?color:Color = -1):Void
 	{
 		var code:Int;
 		var cursor = x;
 		
-		the.setColor(color);
+		g2.color = color;
 			
 		str = str.toUpperCase();
 		
@@ -116,37 +97,37 @@ class Draw
 	}
 	
 	/** Draw line */
-	public static function line(x0:Float, y0:Float, x1:Float, y1:Float, ?color:Color):Void
+	public static function line(x0:Float, y0:Float, x1:Float, y1:Float, color:Color):Void
 	{
-		the.setColor(color);
+		g2.color = color;
 		g2.drawLine(x0 - Micro.camera.x, y0 - Micro.camera.y, x1 - Micro.camera.x, y1 - Micro.camera.y);			
 	}
 	
 	/** Draw a rectange */
-	public static function rect(x:Float, y:Float, w:Int, h:Int, ?color:Color):Void
+	public static function rect(x:Float, y:Float, w:Int, h:Int, color:Color):Void
 	{
-		the.setColor(color);
+		g2.color = color;
 		g2.drawRect(x - Micro.camera.x, y - Micro.camera.y, w, h);
 	}
 	
 	/** Draw a filled rectange */
-	public static function rectfill(x:Float, y:Float, w:Int, h:Int, ?color:Color):Void
+	public static function rectfill(x:Float, y:Float, w:Int, h:Int, color:Color):Void
 	{
-		the.setColor(color);
+		g2.color = color;
 		g2.fillRect(x - Micro.camera.x, y - Micro.camera.y, w, h);
 	}	
 	
 	/** Draw a circle at x,y with radius r */
-	public static function circ(x:Float, y:Float, r:Float, ?color:Color):Void
+	public static function circ(x:Float, y:Float, r:Float, color:Color):Void
 	{
-		the.setColor(color);		
+		g2.color = color;
 		g2.drawCircle(x - Micro.camera.x, y - Micro.camera.y, r);
 	}
 	
 	/** Draw a filled circle at x,y with radius r */
-	public static function circfill(x:Float, y:Float, r:Float, ?color:Color):Void
+	public static function circfill(x:Float, y:Float, r:Float, color:Color):Void
 	{
-		the.setColor(color);		
+		g2.color = color;
 		g2.fillCircle(x - Micro.camera.x, y - Micro.camera.y, r);
 	}
 }
