@@ -7,6 +7,11 @@ class Micro
 
 	public static var camera = new Camera();
 	
+	public static var gameWidth:Int;
+	public static var gameHeight:Int;
+	public static var halfGameWidth:Int;
+	public static var halfGameHeight:Int;
+	
 	inline public static function int(x:Float):Int
 	{
 		return Std.int(x);	

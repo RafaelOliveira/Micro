@@ -17,6 +17,8 @@ class Draw
 	public static var g2:kha.graphics2.Graphics;
 	
 	var font:Image;
+	var fontWidth:Int;
+	var fontHeight:Int;
 	
 	static var the:Draw;
 	
@@ -30,9 +32,11 @@ class Draw
 		the = this;
 	}
 	
-	inline public static function loadBmFont(name:String):Void
+	inline public static function loadBmFont(name:String, width:Int, height:Int):Void
 	{
 		the.font = Reflect.field(Assets.images, name);
+		the.fontWidth = width;
+		the.fontHeight = height;
 	}
 	
 	/** Clear the screen */
@@ -63,10 +67,10 @@ class Draw
 				else if (code > 122)
 					code -= 60;				
 				
-				g2.drawScaledSubImage(the.font, code * 4, 0, 4, 5, cursor - Micro.camera.x, y - Micro.camera.y, 4, 5);
+				g2.drawScaledSubImage(the.font, code * the.fontWidth, 0, the.fontWidth, the.fontHeight, cursor - Micro.camera.x, y - Micro.camera.y, the.fontWidth, the.fontHeight);
 			}
 			
-			cursor += 4;
+			cursor += the.fontWidth;
 		}
 	}
 	
@@ -81,7 +85,7 @@ class Draw
 	public static function endp():Void
 	{
 		g1.end();
-		g2.begin(true, SColor.transpColor);
+		g2.begin(false);
 	}
 	
 	/** Get the color of a pixel at x, y */

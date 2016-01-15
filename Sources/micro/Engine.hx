@@ -23,6 +23,11 @@ class Engine
 			var input = new Input();
 			var draw = new Draw(width, height);
 			
+			Micro.gameWidth = width;
+			Micro.gameHeight = height;
+			Micro.halfGameWidth = Std.int(width / 2);
+			Micro.halfGameHeight = Std.int(height / 2);
+			
 			gameInit();
 			
 			if (gameUpdate != null)

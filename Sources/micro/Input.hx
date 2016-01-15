@@ -42,8 +42,10 @@ class Input
 		var k = Keyboard.get();
 		k.notify(keyDown, keyUp);
 		
+		#if !flash
 		var t = Surface.get();
 		t.notify(touchStart, touchEnd, touchMove);
+		#end
 		
 		the = this;
 	}
