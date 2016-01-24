@@ -16,6 +16,9 @@ class Draw
 	/** Kha's 2d context */
 	public static var g2:kha.graphics2.Graphics;
 	
+	/** If should use bilinear filter on render */
+	public static var bFilter:Bool = false;
+	
 	var font:Image;
 	var fontWidth:Int;
 	var fontHeight:Int;
@@ -40,15 +43,12 @@ class Draw
 	}
 	
 	/** Clear the screen */
-	public static function cls(?color:Color):Void
-	{
-		if (color != null)
-			g2.clear(color);
-		else
-			g2.clear(Color.Black);
+	inline public static function cls(color:Color = 0xff000000):Void
+	{		
+		g2.clear(color);		
 	}
 	
-	public static function bmString(str:String, x:Float, y:Float, ?color:Color = -1):Void
+	public static function bmString(str:String, x:Float, y:Float, ?color:Color = 0xffffffff):Void
 	{
 		var code:Int;
 		var cursor = x;

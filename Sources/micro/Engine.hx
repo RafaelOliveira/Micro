@@ -57,7 +57,8 @@ class Engine
 
 	public function render(framebuffer:Framebuffer):Void 
 	{		
-		//framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;
+		if (Draw.bFilter)
+			framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;		
 		
 		Draw.g2.begin(false);
 		gameRender();
