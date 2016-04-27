@@ -75,14 +75,14 @@ class Draw
 	}
 	
 	/** Call this before draw pixels */
-	public static function begp():Void
+	public static function startPx():Void
 	{
 		g2.end();
 		g1.begin();
 	}
 	
 	/** Call this after draw pixels */
-	public static function endp():Void
+	public static function endPx():Void
 	{
 		g1.end();
 		g2.begin(false);

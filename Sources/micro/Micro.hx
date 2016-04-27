@@ -12,6 +12,12 @@ class Micro
 	public static var halfGameWidth:Int;
 	public static var halfGameHeight:Int;
 	
+	public static var PI(get, null):Float;
+	inline static function get_PI():Float 
+	{
+		return Math.PI;
+	}
+	
 	inline public static function int(x:Float):Int
 	{
 		return Std.int(x);	
@@ -30,6 +36,26 @@ class Micro
 	inline public static function rnd(x:Float):Float
 	{
 		return Math.random() * x;
+	}
+	
+	inline public static function rndi(x:Float):Int
+	{
+		return Std.int(Math.random() * x);
+	}
+	
+	inline public static function sin(x:Float):Float
+	{
+		return Math.sin(x);
+	}
+	
+	inline public static function cos(x:Float):Float
+	{
+		return Math.cos(x);
+	}
+	
+	inline public static function distance(x1:Float, y1:Float, x2:Float = 0, y2:Float = 0):Float
+	{
+		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 	}
 	
 	public static function rectCollision(x0:Float, y0:Float, w0:Int, h0:Int, x1:Float, y1:Float, w1:Int, h1:Int):Bool

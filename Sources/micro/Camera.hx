@@ -11,7 +11,7 @@ class Camera
 		y = 0;
 	}
 	
-	public function reset()
+	inline public function reset()
 	{
 		x = 0;
 		y = 0;
