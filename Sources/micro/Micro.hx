@@ -86,6 +86,13 @@ class Micro
 	var touchsHeld:Map<Int, Touch>;
 	var touchsPressed:Map<Int, Touch>;
 
+	var shakeTime:Float = 0;
+	var shakeMagnitude:Int = 0;
+	var shakeX:Int = 0;
+	var shakeY:Int = 0;
+
+	var fixedDt:Float;
+
 	public function new(options:InitOptions):Void
 	{
 		the = this;
@@ -133,13 +140,15 @@ class Micro
 		surface.notify(touchStart, touchEnd, touchMove);
 		#end
 
+		fixedDt = 1 / options.fps;
+
 		if (options.init != null)
 			options.init();
 
 		if (options.update != null)
 		{
 			gameUpdate = options.update;
-			Scheduler.addTimeTask(update, 0, 1 / options.fps);
+			Scheduler.addTimeTask(update, 0, fixedDt);
 		}
 
 		if (options.draw != null)
@@ -153,6 +162,7 @@ class Micro
 	{		
 		gameUpdate();
 		inputUpdate();
+		updateScreenShake();
 	}
 
 	function inputUpdate():Void
@@ -162,6 +172,31 @@ class Micro
 			
 		for (key in touchsPressed.keys())
 			touchsPressed.remove(key);
+	}
+
+	function updateScreenShake():Void
+	{
+		if (shakeTime > 0)
+		{
+			var sx:Int = Std.random(shakeMagnitude * 2 + 1) - shakeMagnitude;
+			var sy:Int = Std.random(shakeMagnitude * 2 + 1) - shakeMagnitude;
+
+			camera.x += sx - shakeX;
+			camera.y += sy - shakeY;
+
+			shakeX = sx;
+			shakeY = sy;
+
+			shakeTime -= fixedDt;
+			if (shakeTime < 0) 
+				shakeTime = 0;
+		}
+		else if (shakeX != 0 || shakeY != 0)
+		{
+			camera.x -= shakeX;
+			camera.y -= shakeY;
+			shakeX = shakeY = 0;
+		}
 	}
 
 	function draw(framebuffer:Framebuffer):Void
@@ -357,7 +392,7 @@ class Micro
 		the.g2.disableScissor();
 	}
 
-	inline public static function pset(x:Int, y:Int, color:Color):Void
+	inline public static function pset(x:Float, y:Float, color:Color):Void
 	{
 		the.g2.color = color;
 		the.g2.drawLine(x, y, x + 1, y + 1);
@@ -597,10 +632,20 @@ class Micro
 		}
 	}
 
+	inline public static function opacity(value:Float):Void
+	{
+		the.g2.pushOpacity(value);
+	}
+
+	inline public static function disableOpacity():Void
+	{
+		the.g2.popOpacity();
+	}
+
 	/**
 	 * Start the rotation
 	 */
-	inline public function startRot(angle:FastFloat, centerx:FastFloat, centery:FastFloat):Void
+	inline public static function startRot(angle:FastFloat, centerx:FastFloat, centery:FastFloat):Void
 	{
 		the.g2.pushRotation(angle, centerx, centery);
 	}
@@ -608,7 +653,7 @@ class Micro
 	/**
 	 * End the rotation
 	 */
-	inline public function endRot():Void
+	inline public static function endRot():Void
 	{
 		the.g2.popTransformation();
 	}
@@ -676,5 +721,18 @@ class Micro
 		else b = y0 < y1 + h1;
 		
 		return a && b;
+	}
+
+	public static function shake(magnitude:Int, duration:Float):Void
+	{
+		if (the.shakeTime < duration) 
+			the.shakeTime = duration;
+
+		the.shakeMagnitude = magnitude;
+	}
+
+	public static function shakeStop():Void
+	{
+		the.shakeTime = 0;
 	}
 }
