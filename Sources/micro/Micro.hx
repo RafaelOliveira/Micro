@@ -88,6 +88,8 @@ class Micro
 
 	public function new(options:InitOptions):Void
 	{
+		the = this;
+
 		System.init({ title: 'Project', width: options.width, height: options.height }, function() {
 			Assets.loadEverything(function() init(options));
 		});
@@ -144,15 +146,13 @@ class Micro
 		{
 			gameDraw = options.draw;
 			System.notifyOnRender(draw);
-		}
-
-		the = this;
+		}		
 	}
 
 	function update():Void
-	{
-		inputUpdate();
+	{		
 		gameUpdate();
+		inputUpdate();
 	}
 
 	function inputUpdate():Void
@@ -653,6 +653,11 @@ class Micro
 	{
 		return Math.cos(x);
 	}
+
+	inline public static function flr(x:Float):Float
+	{
+		return Math.floor(x);
+	}	
 	
 	inline public static function distance(x1:Float, y1:Float, x2:Float = 0, y2:Float = 0):Float
 	{
