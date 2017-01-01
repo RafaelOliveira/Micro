@@ -2,12 +2,21 @@ package micro;
 
 class Rect 
 {
+	/**
+	 * Custom variable that can be used by the developer
+	 */
+	public var id:Int;
+	/**
+	 * Custom variable that can be used by the developer
+	 */
+	public var name:String;
+
 	public var x: Float;
 	public var y: Float;
-	public var width: Float;
-	public var height: Float;
+	public var width: Int;
+	public var height: Int;
 
-	public function new(x:Float = 0, y:Float = 0, width:Float = 0, height:Float = 0):Void 
+	public function new(x:Float = 0, y:Float = 0, width:Int = 0, height:Int = 0):Void 
     {
 		this.x = x;
 		this.y = y;
@@ -21,30 +30,30 @@ class Rect
 		this.y = y;
 	}
 
-	public function moveX(xdelta:Int):Void 
+	public function moveX(dx:Int):Void 
     {
-		x += xdelta;
+		x += dx;
 	}
 
-	public function moveY(ydelta:Int):Void 
+	public function moveY(dy:Int):Void 
     {
-		y += ydelta;
+		y += dy;
 	}
 
-	public function collision(r:Rect):Bool 
+	public function collision(rect:Rect):Bool 
     {
 		var a: Bool;
 		var b: Bool;
 
-		if (x < r.x) 
-			a = r.x < x + width;
+		if (x < rect.x) 
+			a = rect.x < x + width;
 		else 
-			a = x < r.x + r.width;
+			a = x < rect.x + rect.width;
 
-		if (y < r.y) 
-			b = r.y < y + height;
+		if (y < rect.y) 
+			b = rect.y < y + height;
 		else 
-			b = y < r.y + r.height;
+			b = y < rect.y + rect.height;
 
 		return a && b;
 	}
@@ -57,82 +66,13 @@ class Rect
             return false;
     }
 
-	public function rectInside(r:Rect):Bool
+	public function rectInside(rect:Rect):Bool
 	{
-		if (r.width <= width && r.height <= height
-			&& ((r.x == x && r.y == y) || (r.x > x && (r.x + r.width) < (x + width) && (r.y + r.height) < (y + height))
+		if (rect.width <= width && rect.height <= height
+			&& ((rect.x == x && rect.y == y) || (rect.x > x && (rect.x + rect.width) < (x + width) && (rect.y + rect.height) < (y + height))
 		))
 			return true;
 		else
 			return false;
-	}
-
-	public function intersection(r:Rect):Rect
-	{
-		var nx:Float = 0; 
-		var ny:Float = 0;
-		var nw:Float = 0; 
-		var nh:Float = 0;
-
-		if (x < r.x)
-		{
-			nx = r.x;
-			nw = Std.int((x + width) - r.x);  
-		}
-		else
-		{
-			nx = x;
-			
-			if ((x + width) < (r.x + r.width))
-				nw = width;
-			else
-				nw = Std.int((r.x + r.width) - x);
-		}
-
-		if (y < r.y)
-		{
-			ny = r.y;
-			nh = Std.int((y + height) - r.y);
-		}
-		else
-		{
-			ny = y;
-
-			if ((y + height) < (r.y + r.height))
-				nh = height;
-			else
-				nh = Std.int((r.y + r.height) - y);
-		}
-
-		return new Rect(nx, ny, nw, nh);
-	}
-
-	public function separate(rect:Rect):Void
-	{
-		if (collision(rect))
-		{
-			var inter = intersection(rect);
-
-			// collided horizontally
-			if (inter.height > inter.width)
-			{
-				// collided from the right
-				if ((x + width) > rect.x && (x + width) < (rect.x + rect.width))
-					x = rect.x - width;
-				// collided from the left
-				else
-					x = rect.x + rect.width;
-			}
-			// collided vertically
-			else
-			{
-				// collided from the top
-				if ((y + height) > rect.y && (y + height) < (rect.y + rect.height))
-					y = rect.y - height;
-				// collided from the bottom
-				else
-					y = rect.y + rect.height;
-			}
-		}
 	}
 }

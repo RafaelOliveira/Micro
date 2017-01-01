@@ -13,39 +13,24 @@ import kha.input.Surface;
 import kha.Key;
 import kha.Blob;
 import kha.FastFloat;
+import kha.math.Vector2;
 
 using kha.graphics2.GraphicsExtension;
 
 @:structInit
 class InitOptions
 {
-	public var width:Int;
-	public var height:Int;
-	public var backbufferWidth:Int;
-	public var backbufferHeight:Int;
-	public var tileWidth:Int;
-	public var tileHeight:Int;
-	public var fps:Float;
+	@:optional public var width:Int;
+	@:optional public var height:Int;
+	@:optional public var backbufferWidth:Int;
+	@:optional public var backbufferHeight:Int;
+	@:optional public var tileWidth:Int;
+	@:optional public var tileHeight:Int;
+	@:optional public var fps:Float;
 
-	public var init:Void->Void;
-	public var update:Void->Void;
-	public var draw:Void->Void;
-
-	public function new(width:Null<Int> = 512, height:Null<Int> = 512, backbufferWidth:Null<Int> = 0, backbufferHeight:Null<Int> = 0, 
-		tileWidth:Null<Int> = 8, tileHeight:Null<Int> = 8, fps:Null<Float> = 60, 
-		init:Void->Void = null, update:Void->Void = null, draw:Void->Void = null):Void
-	{
-		this.width = width;
-		this.height = height;
-		this.backbufferWidth = backbufferWidth;
-		this.backbufferHeight = backbufferHeight;
-		this.tileWidth = tileWidth;
-		this.tileHeight = tileHeight;
-		this.fps = fps;
-		this.init = init;
-		this.update = update;
-		this.draw = draw;
-	}
+	@:optional public var init:Void->Void;
+	@:optional public var update:Void->Void;
+	@:optional public var draw:Void->Void;
 }
 
 @:allow(micro.Region)
@@ -93,9 +78,18 @@ class Micro
 
 	var fixedDt:Float;
 
+	var _vec:Vector2;
+
 	public function new(options:InitOptions):Void
 	{
 		the = this;
+		_vec = new Vector2();
+
+		if (options.width == null)
+			options.width = 512;
+
+		if (options.height == null)
+			options.height = 512;
 
 		System.init({ title: 'Project', width: options.width, height: options.height }, function() {
 			Assets.loadEverything(function() init(options));
@@ -104,19 +98,13 @@ class Micro
 
 	function init(options:InitOptions):Void
 	{
-		if (options.backbufferWidth == 0)
-			options.backbufferWidth = options.width;
-
-		if (options.backbufferHeight == 0)
-			options.backbufferHeight = options.height;	
-
-		gameWidth = options.backbufferWidth;
-		gameHeight = options.backbufferHeight;
+		gameWidth = options.backbufferWidth != null ? options.backbufferWidth : 128;
+		gameHeight = options.backbufferHeight != null ? options.backbufferHeight : 128;
 		halfGameWidth = Std.int(options.backbufferWidth / 2);
 		halfGameHeight = Std.int(options.backbufferHeight / 2);
 
-		tileWidth = options.tileWidth;
-		tileHeight = options.tileHeight;
+		tileWidth = options.tileWidth != null ? options.tileWidth : 8;
+		tileHeight = options.tileHeight != null ? options.tileHeight : 8;
 
 		backbuffer = Image.createRenderTarget(gameWidth, gameHeight);
 		g2 = backbuffer.g2;
@@ -132,13 +120,16 @@ class Micro
 		for (i in 0...6)
 			keysHeld.set(i, false);
 			
-		var k = Keyboard.get();
-		k.notify(keyDown, keyUp);
+		var keyboard = Keyboard.get();
+		keyboard.notify(keyDown, keyUp);
 		
 		#if !flash
 		var surface = Surface.get();
 		surface.notify(touchStart, touchEnd, touchMove);
 		#end
+
+		if (options.fps == null)
+			options.fps = 60;
 
 		fixedDt = 1 / options.fps;
 
@@ -315,16 +306,25 @@ class Micro
 		th.on = false;
 		
 		touchsHeld.set(index, th);
-	}
+	}	
 
-	/* public api */
+	/*********** public api ***********/
 
+	/**
+	 * Set the image used as the spritesheet
+	 */
 	inline public static function setSprite(image:Image):Void
 	{
 		the.sprites = image;
 		the.totalSprCol = Std.int(image.width / the.tileWidth);
 	}
 
+	/**
+	 * Set the image used by the bitmapfont system
+	 * The system uses a fixed size
+	 * width: The width of the letters
+	 * height: The height of the letters
+	 */
 	inline public static function setBmFont(font:Image, width:Int, height:Int):Void
 	{
 		the.bmFont = font;
@@ -332,12 +332,12 @@ class Micro
 		the.bmFontHeight = height;
 	}
 
-	function setMap(mapFile:Blob):Void
+	public static function setMapFromPyxelEdit(mapFile:Blob):Void
 	{	
 		var width:Int = 0;
 		var height:Int = 0;
 		
-		mapLayers = new Array<Array<Array<Int>>>();
+		the.mapLayers = new Array<Array<Array<Int>>>();
 		var layer:Array<Array<Int>>;		
 		
 		var lines = mapFile.toString().split('\n');
@@ -373,37 +373,113 @@ class Micro
 								layer[layer.length - 1].push(Std.parseInt(data[x]));
 						}
 						
-						mapLayers.push(layer);
+						the.mapLayers.push(layer);
 				}
 			}
 		}					
 	}
 
+	public static function setMapFrom2DArray(array:Array<Array<Int>>, layer:Int = 0):Void
+	{
+		if (the.mapLayers == null)
+			the.mapLayers = new Array<Array<Array<Int>>>();
+
+		the.mapLayers[layer] = new Array<Array<Int>>();
+
+		for (y in 0...array.length)
+		{
+			the.mapLayers[layer].push(new Array<Int>());
+			
+			for (x in 0...the.mapLayers[layer][y].length)			
+				the.mapLayers[layer][y].push(array[y][x]);		
+		}
+	}
+
+	public static function setMapFromString(str:String, columnSep:String = ',', rowSep:String = '\n', layer:Int = 0):Void
+	{
+		if (the.mapLayers == null)
+			the.mapLayers = new Array<Array<Array<Int>>>();
+
+		var row:Array<String> = str.split(rowSep);
+		var	rows:Int = row.length;
+		var	col:Array<String>;
+		var cols:Int;
+		var x:Int;
+		var y:Int;
+
+		the.mapLayers[layer] = new Array<Array<Int>>();
+
+		for (y in 0...rows)
+		{
+			the.mapLayers[layer].push(new Array<Int>());
+			
+			if (row[y] == '') 
+				continue;
+			
+			col = row[y].split(columnSep);
+			cols = col.length;
+			
+			for (x in 0...cols)
+			{
+				if (col[x] != '')		
+					the.mapLayers[layer][y].push(Std.parseInt(col[x]));
+			}
+		}
+	}
+
 	/**
-	 * Sets the screen's clipping region in pixels
+	 * Set the screen's clipping region in pixels
 	 */
-	inline public static function clip(x: Int, y: Int, width: Int, height: Int):Void
+	inline public static function clip(x:Int, y:Int, width:Int, height:Int):Void
 	{
 		the.g2.scissor(x, y, width, height);
 	}
 
+	/*
+	 * Disable the screen clipping region
+	 */
 	inline public static function disableClip():Void
 	{
 		the.g2.disableScissor();
 	}
 
+	/**
+	 * Set the color of a pixel at x, y
+	 */
 	inline public static function pset(x:Float, y:Float, color:Color):Void
 	{
 		the.g2.color = color;
 		the.g2.drawLine(x, y, x + 1, y + 1);
 	}
+	
+	/*
+	 * Call this before start drawing inside the spritesheet with sset
+	 */	
+	inline public static function spStart():Void
+	{
+		the.sprites.g2.begin();	
+	}
 
+	/*
+	 * Call this after drawing inside the spritesheet with sset
+	 */
+	inline public static function spEnd():Void
+	{
+		the.sprites.g2.end();
+	}
+
+	/**
+	 * Set the color of a spritesheet pixel at x, y
+	 */
 	inline public static function sset(x:Int, y:Int, color:Color):Void
 	{
 		the.sprites.g2.color = color;
 		the.sprites.g2.drawLine(x, y, x + 1, y + 1);
-	}	
+	}
 
+	/**
+	 * Print a string
+	 */
 	public static function bmPrint(str:String, x:Float, y:Float, color:Color = 0xffffffff):Void
 	{
 		var code:Int;
@@ -578,7 +654,7 @@ class Micro
 	}
 
 	/**
-	 * Draws a portion of the map
+	 * Draw a portion of the map
 	 */
 	public static function drawMap(x:Float, y:Float, sx:Int, sy:Int, sw:Int, sh:Int, layer:Int = 0, color:Color = 0xffffffff):Void
 	{
@@ -608,7 +684,7 @@ class Micro
 	}
 
 	/**
-	 * Draws a portion of the map with just one tile	 
+	 * Draw a portion of the map with just one tile	 
 	 */
 	public static function drawMapWithTile(n:Int, x:Float, y:Float, sx:Int, sy:Int, sw:Int, sh:Int, layer:Int = 0, color:Color = 0xffffffff):Void
 	{
@@ -632,11 +708,17 @@ class Micro
 		}
 	}
 
+	/**
+	 * Set the opacity of the drawing functions
+	 */
 	inline public static function opacity(value:Float):Void
 	{
 		the.g2.pushOpacity(value);
 	}
 
+	/**
+	 * Disable the opacity
+	 */
 	inline public static function disableOpacity():Void
 	{
 		the.g2.popOpacity();
@@ -658,58 +740,112 @@ class Micro
 		the.g2.popTransformation();
 	}
 	
+	/**
+	 * The value of PI
+	 */
 	public static var PI(get, null):Float;
 	inline static function get_PI():Float 
 	{
 		return Math.PI;
 	}
 	
+	/**
+	 * Converts a float to int
+	 */
 	inline public static function int(x:Float):Int
 	{
 		return Std.int(x);	
 	}
 	
+	/**
+	 * Returns the minimum
+	 */
 	inline public static function min(a:Float, b:Float):Float
 	{
 		return Math.min(a, b);
 	}
 	
+	/**
+	 * Returns the maximum
+	 */
 	inline public static function max(a:Float, b:Float):Float
 	{
 		return Math.max(a, b);
 	}
-	
+		
+	/**
+	 * Returns a random float value, between 0 and x
+	 */
 	inline public static function rnd(x:Float):Float
 	{
 		return Math.random() * x;
 	}
 	
+	/**
+	 * Returns a random integer value, between 0 and x
+	 */
 	inline public static function rndi(x:Float):Int
 	{
 		return Std.int(Math.random() * x);
 	}
 	
+	/**
+	 * Returns the sine of x
+	 */
 	inline public static function sin(x:Float):Float
 	{
 		return Math.sin(x);
 	}
 	
+	/**
+	 * Returns the cosine of x
+	 */
 	inline public static function cos(x:Float):Float
 	{
 		return Math.cos(x);
 	}
 
+	/**
+	 * Returns the closest integer below x
+	 */
 	inline public static function flr(x:Float):Float
 	{
 		return Math.floor(x);
-	}	
+	}
+
+	/**
+	 * Change a variable in the direction of zero, using a amount
+	 */
+	public static function toZero(variable:Float, amount:Float):Float
+	{
+		if (variable < 0)
+		{
+			variable += amount;
+			if (variable > 0)
+				variable = 0;
+		}
+		else
+		{
+			variable -= amount;
+			if (variable < 0)
+				variable = 0;
+		}
+
+		return variable;
+	}
 	
+	/**
+	 * Distance between two points
+	 */
 	inline public static function distance(x1:Float, y1:Float, x2:Float = 0, y2:Float = 0):Float
 	{
 		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 	}
 	
-	public static function rectCollision(x0:Float, y0:Float, w0:Int, h0:Int, x1:Float, y1:Float, w1:Int, h1:Int):Bool
+	/**
+	 * Check if two rectangles collides using separated variables
+	 */
+	public static function collision(x0:Float, y0:Float, w0:Int, h0:Int, x1:Float, y1:Float, w1:Int, h1:Int):Bool
 	{
 		var a: Bool;
 		var b: Bool;
@@ -723,6 +859,9 @@ class Micro
 		return a && b;
 	}
 
+	/**
+	 * Shake the screen
+	 */
 	public static function shake(magnitude:Int, duration:Float):Void
 	{
 		if (the.shakeTime < duration) 
@@ -731,8 +870,66 @@ class Micro
 		the.shakeMagnitude = magnitude;
 	}
 
+	/**
+	 * Stop the shake
+	 */
 	public static function shakeStop():Void
 	{
 		the.shakeTime = 0;
+	}
+
+	/**
+	 * Move a object defined by a position and size, by the amount dx and dy, 
+	 * checking for collision between the list of rectangles.
+	 * The variable pos is updated and the function retuns true if a collision happened.
+	 */
+	public static function moveBy(pos:Vector2, width:Int, height:Int, dx:Float, dy:Float, rects:Array<Rect>):Bool
+	{
+		// used to check the collision with a rectangle 
+		var collided:Bool = false;
+
+		// used to check if a collision happened with all the rectangles
+		var gbCollision:Bool = false;
+
+		for (rect in rects)
+		{
+			do 
+			{
+				collided = false;
+
+				if (collision(pos.x + dx, pos.y, width, height, rect.x, rect.y, rect.width, rect.height))
+				{
+					dx = toZero(dx, 1);
+					collided = true;
+					gbCollision = true;
+				}
+
+				if (collision(pos.x, pos.y + dy, width, height, rect.x, rect.y, rect.width, rect.height))
+				{
+					dy = toZero(dy, 1);
+					collided = true;
+					gbCollision = true;
+				}
+			}
+			while (collided);
+		}
+
+		pos.x += dx;
+		pos.y += dy;
+
+		return gbCollision;
+	}
+
+	public static function moveRectBy(rect:Rect, dx:Float, dy:Float, rects:Array<Rect>):Bool
+	{
+		the._vec.x = rect.x;
+		the._vec.y = rect.y;
+
+		var collided = moveBy(the._vec, rect.width, rect.height, dx, dy, rects);
+		
+		rect.x = the._vec.x;
+		rect.y = the._vec.y;
+
+		return collided;
 	}
 }
