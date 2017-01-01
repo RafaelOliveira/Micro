@@ -132,10 +132,7 @@ class Micro
 		if (options.fps == null)
 			options.fps = 60;
 
-		fixedDt = 1 / options.fps;
-
-		//if (options.init != null)
-		//	options.init();
+		fixedDt = 1 / options.fps;				
 
 		callback();				
 	}
