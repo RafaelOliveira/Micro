@@ -20,6 +20,7 @@ using kha.graphics2.GraphicsExtension;
 @:structInit
 class InitOptions
 {
+	public var title:String;
 	@:optional public var width:Int;
 	@:optional public var height:Int;
 	@:optional public var backbufferWidth:Int;
@@ -53,8 +54,8 @@ class Micro
 
 	var mapLayers:Array<Array<Array<Int>>>;
 	
-	var gameUpdate:Void->Void;
-	var gameDraw:Void->Void;
+	public var gameUpdate:Void->Void;
+	public var gameDraw:Void->Void;
 
 	var backbuffer:Image;
 	var sprites:Image;
@@ -76,14 +77,14 @@ class Micro
 	var shakeX:Int = 0;
 	var shakeY:Int = 0;
 
-	var fixedDt:Float;
+	var fixedDt:Float;	
 
-	var _vec:Vector2;
-
-	public function new(options:InitOptions):Void
+	public function new(?options:InitOptions, callback:Void->Void):Void
 	{
-		the = this;
-		_vec = new Vector2();
+		the = this;	
+
+		if (options == null)
+			options = { title: 'Project' };
 
 		if (options.width == null)
 			options.width = 512;
@@ -91,12 +92,12 @@ class Micro
 		if (options.height == null)
 			options.height = 512;
 
-		System.init({ title: 'Project', width: options.width, height: options.height }, function() {
-			Assets.loadEverything(function() init(options));
+		System.init({ title: options.title, width: options.width, height: options.height }, function() {
+			Assets.loadEverything(function() init(options, callback));
 		});
 	}
 
-	function init(options:InitOptions):Void
+	function init(options:InitOptions, callback:Void->Void):Void
 	{
 		gameWidth = options.backbufferWidth != null ? options.backbufferWidth : 128;
 		gameHeight = options.backbufferHeight != null ? options.backbufferHeight : 128;
@@ -133,20 +134,25 @@ class Micro
 
 		fixedDt = 1 / options.fps;
 
-		if (options.init != null)
-			options.init();
+		//if (options.init != null)
+		//	options.init();
 
-		if (options.update != null)
+		callback();				
+	}
+
+	public static function start(gameUpdate:Void->Void, gameDraw:Void->Void):Void
+	{
+		if (gameUpdate != null)
 		{
-			gameUpdate = options.update;
-			Scheduler.addTimeTask(update, 0, fixedDt);
+			the.gameUpdate = gameUpdate;
+			Scheduler.addTimeTask(the.update, 0, the.fixedDt);
 		}
 
-		if (options.draw != null)
+		if (gameDraw != null)
 		{
-			gameDraw = options.draw;
-			System.notifyOnRender(draw);
-		}		
+			the.gameDraw = gameDraw;
+			System.notifyOnRender(the.draw);
+		}
 	}
 
 	function update():Void
@@ -877,13 +883,8 @@ class Micro
 	{
 		the.shakeTime = 0;
 	}
-
-	/**
-	 * Move a object defined by a position and size, by the amount dx and dy, 
-	 * checking for collision between the list of rectangles.
-	 * The variable pos is updated and the function retuns true if a collision happened.
-	 */
-	public static function moveBy(pos:Vector2, width:Int, height:Int, dx:Float, dy:Float, rects:Array<Rect>):Bool
+	 
+	public static function moveBy(x:Float, y:Float, width:Int, height:Int, delta:Vector2, rects:Array<Rect>):Bool
 	{
 		// used to check the collision with a rectangle 
 		var collided:Bool = false;
@@ -897,39 +898,23 @@ class Micro
 			{
 				collided = false;
 
-				if (collision(pos.x + dx, pos.y, width, height, rect.x, rect.y, rect.width, rect.height))
+				if (collision(x + delta.x, y, width, height, rect.x, rect.y, rect.width, rect.height))
 				{
-					dx = toZero(dx, 1);
+					delta.x = toZero(delta.x, 1);
 					collided = true;
 					gbCollision = true;
 				}
 
-				if (collision(pos.x, pos.y + dy, width, height, rect.x, rect.y, rect.width, rect.height))
+				if (collision(x, y + delta.y, width, height, rect.x, rect.y, rect.width, rect.height))
 				{
-					dy = toZero(dy, 1);
+					delta.y = toZero(delta.y, 1);
 					collided = true;
 					gbCollision = true;
 				}
 			}
 			while (collided);
-		}
-
-		pos.x += dx;
-		pos.y += dy;
+		}		
 
 		return gbCollision;
-	}
-
-	public static function moveRectBy(rect:Rect, dx:Float, dy:Float, rects:Array<Rect>):Bool
-	{
-		the._vec.x = rect.x;
-		the._vec.y = rect.y;
-
-		var collided = moveBy(the._vec, rect.width, rect.height, dx, dy, rects);
-		
-		rect.x = the._vec.x;
-		rect.y = the._vec.y;
-
-		return collided;
-	}
+	}	
 }
