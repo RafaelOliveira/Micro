@@ -21,13 +21,13 @@ using kha.graphics2.GraphicsExtension;
 class InitOptions
 {
 	public var title:String;
-	@:optional public var width:Int;
-	@:optional public var height:Int;
-	@:optional public var backbufferWidth:Int;
-	@:optional public var backbufferHeight:Int;
-	@:optional public var tileWidth:Int;
-	@:optional public var tileHeight:Int;
-	@:optional public var fps:Float;
+	@:optional public var width:Null<Int>;
+	@:optional public var height:Null<Int>;
+	@:optional public var backbufferWidth:Null<Int>;
+	@:optional public var backbufferHeight:Null<Int>;
+	@:optional public var tileWidth:Null<Int>;
+	@:optional public var tileHeight:Null<Int>;
+	@:optional public var fps:Null<Float>;
 
 	@:optional public var init:Void->Void;
 	@:optional public var update:Void->Void;
